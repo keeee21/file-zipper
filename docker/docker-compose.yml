@@ -1,0 +1,66 @@
+services:
+  frontend:
+    container_name: file-zipper_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    working_dir: /var/www/frontend
+    environment:
+      - PATH=./node_modules/.bin:$PATH
+    volumes:
+      - ../frontend:/var/www/frontend
+    command: sh -c 'pnpm run dev --host 0.0.0.0;'
+    depends_on:
+      - api
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../api:/var/www/api
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      TZ: Asia/Tokyo
+      PGTZ: Asia/Tokyo  
+      POSTGRES_PASSWORD: file_zipper_pw
+      POSTGRES_DB: file_zipper
+      POSTGRES_USER: postgres
+    volumes:
+      - file_zipper_db:/var/lib/postgresql/data
+  s3:
+    image: minio/minio:latest
+    container_name: file-zipper_s3
+    ports:
+      - '9000:9000'
+      - '8900:8900'
+    volumes:
+      - ./minio/data:/data
+    command: server /data --console-address ':8900'
+    environment:
+      MINIO_ROOT_USER: local_test_s3_access_key
+      MINIO_ROOT_PASSWORD: local_test_s3_secret_key
+  s3CreateBucket:
+    image: minio/minio:latest
+    container_name: file-zipper_s3-createBucket
+    depends_on:
+      - s3
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set my_minio http://s3:9000 local_test_s3_access_key local_test_s3_secret_key;
+      mc mb --ignore-existing my_minio/files.localhost;
+      exit 0;
+      "
+volumes:
+  file_zipper_db:
+networks:
+  default:
+    name: file-zipper_net
