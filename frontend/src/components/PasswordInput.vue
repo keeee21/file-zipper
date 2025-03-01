@@ -12,6 +12,11 @@ const togglePassword = () => {
   emit('update:isPasswordEnabled', !props.isPasswordEnabled);
   emit('toggle', !props.isPasswordEnabled);
 };
+
+const updatePassword = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  emit('update:password', target.value);
+};
 </script>
 
 <template>
@@ -23,7 +28,7 @@ const togglePassword = () => {
   </div>
 
   <div v-if="isPasswordEnabled" class="password-field">
-    <input type="text" :value="password" @input="emit('update:password', $event.target.value)" class="password-input" />
+    <input type="text" :value="password" @input="updatePassword" class="password-input" />
   </div>
 </template>
 

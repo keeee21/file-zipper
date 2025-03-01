@@ -1,8 +1,8 @@
+const { VITE_API_URL } = import.meta.env;
 import { ref } from 'vue';
 
 export function useFileUploader() {
   const previewFile = ref<string | null>(null);
-  const fileName = ref<string | null>(null);
   const fileData = ref<File | null>(null);
   const isUploading = ref(false);
   const fileInput = ref<HTMLInputElement | null>(null);
@@ -13,7 +13,11 @@ export function useFileUploader() {
    * 画像選択ボタンをクリック
    */
   const selectFile = () => {
-    fileInput.value?.click();
+    if (!fileInput.value) {
+      errorMessage.value = "ファイルが見つかりません";
+      return;
+    }
+    fileInput.value.click();
   };
 
   /**
@@ -35,8 +39,7 @@ export function useFileUploader() {
     }
 
     if (file) {
-      fileData.value = file;  // ✅ ファイルデータをセット
-      fileName.value = file.name;
+      fileData.value = file;
 
       // 画像ファイルの場合はプレビューを生成
       if (file.type.startsWith('image/')) {
@@ -60,29 +63,31 @@ export function useFileUploader() {
       errorMessage.value = "ファイルが選択されていません";
       return false;
     }
+    const actualFileName = fileData.value.name || "unknown";
 
     isUploading.value = true;
     errorMessage.value = null;
 
     try {
       const formData = new FormData();
-      formData.append('file', fileData.value);
-      formData.append('fileName', fileName.value || 'unknown');
+      formData.append("file", fileData.value);
+      formData.append("fileName", actualFileName);
       if (password) {
-        formData.append('password', password);
+        formData.append("password", password);
       }
 
-      const response = await fetch('/api/file-upload', {
-        method: 'POST',
+      const response = await fetch(`${VITE_API_URL}/file-upload`, {
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('File upload failed.');
+        throw new Error("File upload failed.");
       }
 
       return true;
     } catch (error) {
+      console.log("❌ アップロードエラー:", error);
       errorMessage.value = "アップロードに失敗しました。再試行してください。";
       return false;
     } finally {
@@ -104,7 +109,6 @@ export function useFileUploader() {
 
   return {
     previewFile,
-    fileName,
     fileData,
     isUploading,
     fileInput,

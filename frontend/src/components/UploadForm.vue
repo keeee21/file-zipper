@@ -4,8 +4,7 @@ import FileUpload from '@/components/FileUpload.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { useFileUploader } from '@/composables/useFileUploader';
 
-const { uploadFile } = useFileUploader();
-const fileData = ref<File | null>(null);
+const { uploadFile, errorMessage, fileData } = useFileUploader();
 const isPasswordEnabled = ref(false);
 const password = ref('');
 
@@ -24,15 +23,16 @@ function generateRandomPassword() {
 }
 
 // アップロード処理
-const handleUpload = () => {
+const handleUpload = async () => {
   if (!fileData.value) {
     alert('ファイルを選択してください');
     return;
   }
-  console.log("Uploading:", fileData.value.name);
-  console.log("Password:", password.value);
-  console.log(fileData.value);
-  uploadFile(password.value);
+
+  const success = await uploadFile(password.value);
+  if (success) {
+    alert("File uploaded successfully!");
+  }
 };
 </script>
 
@@ -40,15 +40,15 @@ const handleUpload = () => {
   <div class="upload-container">
     <h1 class="title">File Zipper</h1>
 
-    <!-- ファイルアップロード -->
-    <FileUpload v-model:fileData="fileData" />
+    <FileUpload @update:fileData="fileData = $event" />
     
-    <!-- パスワード入力 -->
     <PasswordInput 
       v-model:isPasswordEnabled="isPasswordEnabled"
       v-model:password="password"
       @toggle="handlePasswordToggle"
     />
+
+    <span v-if="errorMessage">{{ errorMessage }}</span>
 
     <button @click="handleUpload" class="upload-button">
       Upload File

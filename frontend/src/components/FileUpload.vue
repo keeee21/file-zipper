@@ -1,65 +1,27 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
+import { useFileUploader } from '@/composables/useFileUploader';
+import { defineEmits, ref } from 'vue';
 
-const props = defineProps<{ fileData: File | null }>();
+const fileName = ref('');
+
+const { 
+  pickFile,
+  previewFile,
+  isDragging,
+  fileData,
+  fileInput,
+  selectFile,
+  handleDragOver,
+  handleDragLeave
+} = useFileUploader();
 const emit = defineEmits(['update:fileData']);
 
-const fileName = ref<string | null>(null);
-const previewFile = ref<string | null>(null);
-const fileInput = ref<HTMLInputElement | null>(null);
-const isDragging = ref(false);
-
 /**
- * クリックでファイル選択
+ * ファイル選択時に親にデータを送信
  */
-const selectFile = () => {
-  fileInput.value?.click();
-};
-
-/**
- * ファイルを選択またはドラッグ&ドロップしたときの処理
- */
-const pickFile = (event?: Event | DragEvent) => {
-  let file: File | null = null;
-
-  if (event instanceof DragEvent) {
-    event.preventDefault();
-    isDragging.value = false;
-    if (event.dataTransfer?.files.length) {
-      file = event.dataTransfer.files[0];
-    }
-  } else if (event instanceof Event) {
-    const input = fileInput.value;
-    if (!input || !input.files || input.files.length === 0) return;
-    file = input.files[0];
-  }
-
-  if (file) {
-    fileName.value = file.name;
-    emit('update:fileData', file); // ファイルデータを親に渡す
-
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        previewFile.value = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      previewFile.value = null; // 画像でない場合、プレビューなし
-    }
-  }
-};
-
-/**
- * ドラッグイベント
- */
-const handleDragOver = (event: DragEvent) => {
-  event.preventDefault();
-  isDragging.value = true;
-};
-
-const handleDragLeave = () => {
-  isDragging.value = false;
+const handleFileChange = (event: Event) => {
+  pickFile(event);
+  emit("update:fileData", fileData.value);
 };
 </script>
 
@@ -78,7 +40,7 @@ const handleDragLeave = () => {
   <input
     ref="fileInput"
     type="file"
-    @change="pickFile"
+    @change="handleFileChange"
     accept="*"
     style="display: none"
   />
