@@ -5,20 +5,34 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { useFileUploader } from '@/composables/useFileUploader';
 
 const { uploadFile } = useFileUploader();
-const fileUploadRef = ref();
-const passwordInputRef = ref();
+const fileData = ref<File | null>(null);
+const isPasswordEnabled = ref(false);
+const password = ref('');
 
-const handleUpload = () => {
-  const fileName = fileUploadRef.value?.fileName;
-  const isPasswordEnabled = passwordInputRef.value?.isPasswordEnabled;
-  const password = passwordInputRef.value?.password;
-
-  console.log("Uploading:", fileName);
-  if (isPasswordEnabled) {
-    console.log("Password:", password);
+// パスワードトグルの処理
+const handlePasswordToggle = (enabled: boolean) => {
+  if (enabled) {
+    password.value = generateRandomPassword();
+  } else {
+    password.value = '';
   }
+};
 
-  uploadFile();
+// ランダムパスワード生成
+function generateRandomPassword() {
+  return Math.random().toString(36).slice(-12);
+}
+
+// アップロード処理
+const handleUpload = () => {
+  if (!fileData.value) {
+    alert('ファイルを選択してください');
+    return;
+  }
+  console.log("Uploading:", fileData.value.name);
+  console.log("Password:", password.value);
+  console.log(fileData.value);
+  uploadFile(password.value);
 };
 </script>
 
@@ -26,8 +40,15 @@ const handleUpload = () => {
   <div class="upload-container">
     <h1 class="title">File Zipper</h1>
 
-    <FileUpload ref="fileUploadRef" />
-    <PasswordInput ref="passwordInputRef" />
+    <!-- ファイルアップロード -->
+    <FileUpload v-model:fileData="fileData" />
+    
+    <!-- パスワード入力 -->
+    <PasswordInput 
+      v-model:isPasswordEnabled="isPasswordEnabled"
+      v-model:password="password"
+      @toggle="handlePasswordToggle"
+    />
 
     <button @click="handleUpload" class="upload-button">
       Upload File
@@ -37,19 +58,14 @@ const handleUpload = () => {
 
 <style scoped>
 .upload-container {
-  max-width: 420px;
+  max-width: 600px;
+  width: 90%;
   margin: 50px auto;
-  padding: 20px;
+  padding: 40px;
   background: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   text-align: center;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 15px;
 }
 
 .upload-button {

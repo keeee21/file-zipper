@@ -1,30 +1,29 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
-const isPasswordEnabled = ref(false);
-const password = ref(generateRandomPassword());
+const props = defineProps<{
+  isPasswordEnabled: boolean;
+  password: string;
+}>();
 
-defineExpose({ isPasswordEnabled, password });
+const emit = defineEmits(['update:isPasswordEnabled', 'update:password', 'toggle']);
 
-function generateRandomPassword() {
-  return Math.random().toString(36).slice(-12);
-}
-
-watch(isPasswordEnabled, (enabled) => {
-  password.value = enabled ? generateRandomPassword() : '';
-});
+const togglePassword = () => {
+  emit('update:isPasswordEnabled', !props.isPasswordEnabled);
+  emit('toggle', !props.isPasswordEnabled);
+};
 </script>
 
 <template>
   <div class="password-toggle">
     <label>
-      <input type="checkbox" v-model="isPasswordEnabled" />
+      <input type="checkbox" :checked="isPasswordEnabled" @change="togglePassword" />
       パスワードを設定する
     </label>
   </div>
 
   <div v-if="isPasswordEnabled" class="password-field">
-    <input type="text" v-model="password" class="password-input" />
+    <input type="text" :value="password" @input="emit('update:password', $event.target.value)" class="password-input" />
   </div>
 </template>
 

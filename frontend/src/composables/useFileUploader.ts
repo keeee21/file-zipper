@@ -3,9 +3,11 @@ import { ref } from 'vue';
 export function useFileUploader() {
   const previewFile = ref<string | null>(null);
   const fileName = ref<string | null>(null);
+  const fileData = ref<File | null>(null);
   const isUploading = ref(false);
   const fileInput = ref<HTMLInputElement | null>(null);
   const isDragging = ref(false);
+  const errorMessage = ref<string | null>(null);
 
   /**
    * 画像選択ボタンをクリック
@@ -15,7 +17,7 @@ export function useFileUploader() {
   };
 
   /**
-   * ファイルを選択したときにプレビューする
+   * ファイルを選択・ドラッグ&ドロップしたときに処理
    */
   const pickFile = (event?: Event | DragEvent) => {
     let file: File | null = null;
@@ -33,39 +35,56 @@ export function useFileUploader() {
     }
 
     if (file) {
-      fileName.value = file.name; // ← ファイル名を取得
-      const reader = new FileReader();
-      reader.onload = () => {
-        previewFile.value = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      fileData.value = file;  // ✅ ファイルデータをセット
+      fileName.value = file.name;
+
+      // 画像ファイルの場合はプレビューを生成
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          previewFile.value = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewFile.value = null;
+      }
+      errorMessage.value = null;
     }
   };
 
   /**
-   * 画像をアップロード
+   * ファイルをアップロード
    */
-  const uploadFile = async () => {
-    if (!previewFile.value) return;
+  const uploadFile = async (password: string | null) => {
+    if (!fileData.value) {
+      errorMessage.value = "ファイルが選択されていません";
+      return false;
+    }
 
     isUploading.value = true;
+    errorMessage.value = null;
 
     try {
-      const response = await fetch('/api/file', {
+      const formData = new FormData();
+      formData.append('file', fileData.value);
+      formData.append('fileName', fileName.value || 'unknown');
+      if (password) {
+        formData.append('password', password);
+      }
+
+      const response = await fetch('/api/file-upload', {
         method: 'POST',
-        body: JSON.stringify({ file: previewFile.value, fileName: fileName.value }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        body: formData,
       });
 
-      if (response.ok) {
-        alert('File uploaded successfully!');
-      } else {
-        alert('File upload failed. Please try again.');
+      if (!response.ok) {
+        throw new Error('File upload failed.');
       }
+
+      return true;
     } catch (error) {
-      alert('An error occurred while uploading the file.');
+      errorMessage.value = "アップロードに失敗しました。再試行してください。";
+      return false;
     } finally {
       isUploading.value = false;
     }
@@ -86,9 +105,11 @@ export function useFileUploader() {
   return {
     previewFile,
     fileName,
+    fileData,
     isUploading,
     fileInput,
     isDragging,
+    errorMessage,
     selectFile,
     pickFile,
     uploadFile,

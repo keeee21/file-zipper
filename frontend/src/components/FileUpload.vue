@@ -1,22 +1,66 @@
 <script setup lang="ts">
-import { useFileUploader } from '@/composables/useFileUploader';
+import { defineProps, defineEmits, ref } from 'vue';
 
-const {
-  previewFile,
-  fileName,
-  fileInput,
-  isDragging,
-  selectFile,
-  pickFile,
-  handleDragOver,
-  handleDragLeave,
-} = useFileUploader();
+const props = defineProps<{ fileData: File | null }>();
+const emit = defineEmits(['update:fileData']);
 
-defineExpose({
-  fileName,
-  previewFile,
-  pickFile
-});
+const fileName = ref<string | null>(null);
+const previewFile = ref<string | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
+
+/**
+ * クリックでファイル選択
+ */
+const selectFile = () => {
+  fileInput.value?.click();
+};
+
+/**
+ * ファイルを選択またはドラッグ&ドロップしたときの処理
+ */
+const pickFile = (event?: Event | DragEvent) => {
+  let file: File | null = null;
+
+  if (event instanceof DragEvent) {
+    event.preventDefault();
+    isDragging.value = false;
+    if (event.dataTransfer?.files.length) {
+      file = event.dataTransfer.files[0];
+    }
+  } else if (event instanceof Event) {
+    const input = fileInput.value;
+    if (!input || !input.files || input.files.length === 0) return;
+    file = input.files[0];
+  }
+
+  if (file) {
+    fileName.value = file.name;
+    emit('update:fileData', file); // ファイルデータを親に渡す
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        previewFile.value = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewFile.value = null; // 画像でない場合、プレビューなし
+    }
+  }
+};
+
+/**
+ * ドラッグイベント
+ */
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault();
+  isDragging.value = true;
+};
+
+const handleDragLeave = () => {
+  isDragging.value = false;
+};
 </script>
 
 <template>
@@ -44,7 +88,6 @@ defineExpose({
 
 <style scoped>
 .upload-box {
-  width: 300px;
   height: 180px;
   display: flex;
   align-items: center;
