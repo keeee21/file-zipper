@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import FileUpload from '@/components/FileUpload.vue'
+import UploadForm from '@/components/UploadForm.vue'
 </script>
 
 <template>
-  <FileUpload />
+  <UploadForm />
 </template>

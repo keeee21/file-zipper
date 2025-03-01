@@ -2,97 +2,77 @@
 import { useFileUploader } from '@/composables/useFileUploader';
 
 const {
-  previewImage,
+  previewFile,
   fileName,
   fileInput,
   isDragging,
-  selectImage,
+  selectFile,
   pickFile,
-  uploadImage,
   handleDragOver,
   handleDragLeave,
 } = useFileUploader();
+
+defineExpose({
+  fileName,
+  previewFile,
+  pickFile
+});
 </script>
 
 <template>
-  <div class="container">
-    <h1>File Zipper</h1>
-
-    <div
-      class="imagePreviewWrapper"
+  <div class="upload-box"
       :class="{ 'dragging': isDragging }"
-      :style="{ 'background-image': previewImage ? `url(${previewImage})` : 'none' }"
-      @click="selectImage"
+      @click="selectFile"
       @dragover.prevent="handleDragOver"
       @dragleave="handleDragLeave"
       @drop.prevent="pickFile($event)"
     >
-      <span v-if="!previewImage">Drag & Drop a file or Click to Upload</span>
-    </div>
-
-    <input
-      ref="fileInput"
-      type="file"
-      @change="pickFile"
-      accept="*"
-      style="display: none"
-    />
-
-    <p v-if="fileName" class="file-name">{{ fileName }}</p>
-
-    <button @click="uploadImage" :disabled="!previewImage">Upload Image</button>
+    <span v-if="!previewFile" class="upload-text">ファイルを選択 または ドラッグ&ドロップ</span>
+    <img v-else :src="previewFile" class="preview-image" />
   </div>
+
+  <input
+    ref="fileInput"
+    type="file"
+    @change="pickFile"
+    accept="*"
+    style="display: none"
+  />
+
+  <p v-if="fileName" class="file-name">{{ fileName }}</p>
 </template>
 
 <style scoped>
-.container {
-  max-width: 600px;
-  margin: 50px auto;
-  text-align: center;
-}
-
-.imagePreviewWrapper {
-  width: 400px;
-  height: 400px;
+.upload-box {
+  width: 300px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin: 20px auto;
-  background-size: cover;
-  background-position: center center;
-  background-color: #f3f3f3;
-  border: 4px dashed #007bff;
-  font-size: 18px;
-  font-weight: bold;
-  color: #555;
+  border-radius: 8px;
+  border: 2px dashed #007bff;
+  background: #f8f9fa;
   transition: all 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
-.imagePreviewWrapper.dragging {
-  background-color: #e3f2fd;
-  border-color: #0056b3;
-}
-
-.imagePreviewWrapper span {
-  text-align: center;
-  padding: 20px;
-}
-
-button {
-  margin-top: 10px;
-  padding: 15px 30px;
+.upload-text {
   font-size: 16px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #555;
 }
 
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.file-name {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
 }
 </style>

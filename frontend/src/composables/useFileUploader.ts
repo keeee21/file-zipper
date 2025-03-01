@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 
 export function useFileUploader() {
-  const previewImage = ref<string | null>(null);
+  const previewFile = ref<string | null>(null);
   const fileName = ref<string | null>(null);
   const isUploading = ref(false);
   const fileInput = ref<HTMLInputElement | null>(null);
@@ -10,7 +10,7 @@ export function useFileUploader() {
   /**
    * 画像選択ボタンをクリック
    */
-  const selectImage = () => {
+  const selectFile = () => {
     fileInput.value?.click();
   };
 
@@ -36,7 +36,7 @@ export function useFileUploader() {
       fileName.value = file.name; // ← ファイル名を取得
       const reader = new FileReader();
       reader.onload = () => {
-        previewImage.value = reader.result as string;
+        previewFile.value = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -45,27 +45,27 @@ export function useFileUploader() {
   /**
    * 画像をアップロード
    */
-  const uploadImage = async () => {
-    if (!previewImage.value) return;
+  const uploadFile = async () => {
+    if (!previewFile.value) return;
 
     isUploading.value = true;
 
     try {
-      const response = await fetch('/api/image', {
+      const response = await fetch('/api/file', {
         method: 'POST',
-        body: JSON.stringify({ image: previewImage.value, fileName: fileName.value }),
+        body: JSON.stringify({ file: previewFile.value, fileName: fileName.value }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
       if (response.ok) {
-        alert('Image uploaded successfully!');
+        alert('File uploaded successfully!');
       } else {
-        alert('Image upload failed. Please try again.');
+        alert('File upload failed. Please try again.');
       }
     } catch (error) {
-      alert('An error occurred while uploading the image.');
+      alert('An error occurred while uploading the file.');
     } finally {
       isUploading.value = false;
     }
@@ -84,14 +84,14 @@ export function useFileUploader() {
   };
 
   return {
-    previewImage,
+    previewFile,
     fileName,
     isUploading,
     fileInput,
     isDragging,
-    selectImage,
+    selectFile,
     pickFile,
-    uploadImage,
+    uploadFile,
     handleDragOver,
     handleDragLeave,
   };
