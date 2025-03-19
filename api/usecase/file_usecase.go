@@ -3,16 +3,12 @@ package usecase
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"file-zipper-api/model"
 	"file-zipper-api/repository"
+	"file-zipper-api/util"
 	"fmt"
 	"log"
 	"os"
-	"time"
-
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -44,39 +40,26 @@ func NewFileUsecase(fileRepo repository.IFileRepository) IFileUsecase {
 }
 
 func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error) {
-	// 1️⃣ パスワードをハッシュ化
-	hash, err := bcrypt.GenerateFromPassword([]byte(file.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return model.FileResponse{}, err
-	}
-	file.Password = string(hash)
+	// 1 一意のファイル名を生成
+	fileName := fmt.Sprintf("%s", util.GenerateULID())
 
-	// 2️⃣ 一意のファイル名を生成
-	randomBytes := make([]byte, 16)
-	_, err = rand.Read(randomBytes)
-	if err != nil {
-		return model.FileResponse{}, err
-	}
-	fileName := fmt.Sprintf("%s%s", hex.EncodeToString(randomBytes), fileExt)
-
-	// 3️⃣ MinIO にアップロード
+	// 2 MinIO にアップロード
 	ctx := context.Background()
 	bucketName := os.Getenv("BUCKET_NAME")
-	_, err = fu.minioClient.PutObject(ctx, bucketName, fileName,
+	_, err := fu.minioClient.PutObject(ctx, bucketName, fileName,
 		bytes.NewReader(fileData), int64(len(fileData)), minio.PutObjectOptions{})
 	if err != nil {
 		return model.FileResponse{}, err
 	}
 
-	// 4️⃣ DB に保存
-	file.FilePath = fmt.Sprintf("%s/%s", bucketName, fileName)
-	file.DownloadUrl = fmt.Sprintf("/download/%d", file.ID)
-	file.ExpiredAt = time.Now().Add(24 * time.Hour) // 24時間後に失効
+	// 3 DB に保存
+	file.Name = fmt.Sprintf("%s", fileName)
+	file.OriginalName = fileExt
 	err = fu.fileRepo.CreateFile(file)
 	if err != nil {
 		return model.FileResponse{}, err
 	}
 
-	// 5️⃣ ダウンロードURLを返す
-	return model.FileResponse{ID: file.ID, DownloadUrl: file.DownloadUrl}, nil
+	// 4 ダウンロードURLを返す
+	return model.FileResponse{ID: file.ID, Name: file.Name}, nil
 }

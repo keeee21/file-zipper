@@ -48,11 +48,8 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイルを読み込めませんでした"})
 	}
 
-	// フォームからパスワードを取得
-	password := c.FormValue("password")
-
 	// ファイル情報作成
-	fileModel := model.File{Password: password}
+	fileModel := model.File{}
 
 	// ✅ ユースケースを呼び出し（エラーハンドリング追加）
 	response, err := fc.fileUsecase.Upload(&fileModel, fileData, fileHeader.Filename)
