@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -16,14 +17,16 @@ import (
 
 type IFileUsecase interface {
 	Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error)
+	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
 }
 
 type fileUsecase struct {
 	fileRepo    repository.IFileRepository
+	roomRepo    repository.IDownloadRoomRepository
 	minioClient *minio.Client
 }
 
-func NewFileUsecase(fileRepo repository.IFileRepository) IFileUsecase {
+func NewFileUsecase(fileRepo repository.IFileRepository, roomRepo repository.IDownloadRoomRepository) IFileUsecase {
 	// MinIO クライアントを作成
 	minioClient, err := minio.New("s3:9000", &minio.Options{
 		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESS_KEY"), os.Getenv("MINIO_SECRET_KEY"), ""),
@@ -35,6 +38,7 @@ func NewFileUsecase(fileRepo repository.IFileRepository) IFileUsecase {
 
 	return &fileUsecase{
 		fileRepo:    fileRepo,
+		roomRepo:    roomRepo,
 		minioClient: minioClient,
 	}
 }
@@ -62,4 +66,35 @@ func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string)
 
 	// 4 ダウンロードURLを返す
 	return model.FileResponse{ID: file.ID, Name: file.Name}, nil
+}
+
+func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string) (*model.DownloadRoom, error) {
+	roomID := util.GenerateULID()
+	url := fmt.Sprintf("%s/%s", os.Getenv("FRONTEND_ORIGIN"), roomID)
+
+	var hashedPassword *string
+	if pass != "" {
+		hashed, err := util.HashPassword(pass)
+		if err != nil {
+			fmt.Println("❌ パスワードのハッシュ化に失敗:", err)
+		} else {
+			hashedPassword = &hashed
+		}
+	}
+
+	expiredAt := time.Now().Add(1 * time.Hour)
+
+	room := &model.DownloadRoom{
+		ID:        roomID,
+		URL:       url,
+		Password:  hashedPassword,
+		ExpiredAt: expiredAt,
+	}
+
+	err := fu.roomRepo.CreateRoom(room)
+	if err != nil {
+		return nil, err
+	}
+
+	return room, nil
 }

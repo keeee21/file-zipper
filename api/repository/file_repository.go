@@ -16,7 +16,7 @@ type fileRepository struct {
 }
 
 func NewFileRepository(db *gorm.DB) IFileRepository {
-	return &fileRepository{db}
+	return &fileRepository{db: db}
 }
 
 // ファイル情報をDBから取得

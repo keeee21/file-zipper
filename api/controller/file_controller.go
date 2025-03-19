@@ -48,16 +48,25 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイルを読み込めませんでした"})
 	}
 
+	// フォームからパスワードを取得
+	password := c.FormValue("password")
+
 	// ファイル情報作成
 	fileModel := model.File{}
 
 	// ✅ ユースケースを呼び出し（エラーハンドリング追加）
-	response, err := fc.fileUsecase.Upload(&fileModel, fileData, fileHeader.Filename)
+	uploadRes, err := fc.fileUsecase.Upload(&fileModel, fileData, fileHeader.Filename)
 	if err != nil {
 		fmt.Println("❌ ファイルのアップロードに失敗:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイルのアップロードに失敗しました"})
 	}
 
-	fmt.Println("✅ アップロード成功:", response)
-	return c.JSON(http.StatusOK, response)
+	downloadRoomRes, err := fc.fileUsecase.CreateDownloadRoom(&fileModel, password)
+	if err != nil {
+		fmt.Println("❌ ダウンロードルームの作成に失敗:", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ダウンロードルームの作成に失敗しました"})
+	}
+	fmt.Println("✅ ダウンロードルームを作成しました:", downloadRoomRes)
+
+	return c.JSON(http.StatusOK, uploadRes)
 }

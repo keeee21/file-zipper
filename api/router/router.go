@@ -11,7 +11,8 @@ import (
 
 func InitRouter(e *echo.Echo, db *gorm.DB) {
 	fileRepo := repository.NewFileRepository(db)
-	fileUsecase := usecase.NewFileUsecase(fileRepo)
+	roomRepo := repository.NewDownloadRoomRepository(db)
+	fileUsecase := usecase.NewFileUsecase(fileRepo, roomRepo)
 	fileController := controller.NewFileController(fileUsecase)
 
 	e.POST("/api/file-upload", fileController.UploadFile)
