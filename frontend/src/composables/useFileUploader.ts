@@ -1,4 +1,3 @@
-const { VITE_API_URL } = import.meta.env;
 import { ref } from 'vue';
 
 export function useFileUploader() {
@@ -76,7 +75,7 @@ export function useFileUploader() {
         formData.append("password", password);
       }
 
-      const response = await fetch(`${VITE_API_URL}/file-upload`, {
+      const response = await fetch('api/file-upload', {
         method: "POST",
         body: formData,
       });

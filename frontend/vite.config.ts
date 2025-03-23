@@ -10,4 +10,12 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://file-zipper_api:3001',
+        changeOrigin: true,
+      }
+    },
+  }
 })
