@@ -2,6 +2,7 @@ package router
 
 import (
 	"file-zipper-api/controller"
+	"file-zipper-api/gateway"
 	"file-zipper-api/repository"
 	"file-zipper-api/usecase"
 
@@ -16,4 +17,10 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	fileController := controller.NewFileController(fileUsecase)
 
 	e.POST("/api/file-upload", fileController.UploadFile)
+
+	googleRepo := gateway.NewGoogleAuthRepository()
+	authUsecase := usecase.NewAuthUsecase(googleRepo)
+	authHandler := controller.NewAuthHandler(authUsecase)
+
+	e.POST("/api/auth/google", authHandler.GoogleLogin)
 }
