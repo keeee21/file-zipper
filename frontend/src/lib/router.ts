@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router';
 
+import AuthService from '@/services/AuthService';
 import LayoutNoHeader from '@/pages/Layouts/NoHeader.vue';
 import LayoutPublic from '@/pages/Layouts/Public.vue';
 import LayoutPrivate from '@/pages/Layouts/Private.vue';
@@ -119,6 +120,15 @@ const routes: Array<RouteRecordRaw> = [
 const router: Router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = AuthService.isLoggedIn();
+  if (to.matched.some((record) => !record.meta.isPublic) && !loggedIn) {
+      next('/login');
+  } else {
+      next();
+  }
 });
 
 router.afterEach((to) => {
