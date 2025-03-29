@@ -6,13 +6,14 @@ import (
 	"os"
 
 	"file-zipper-api/model"
+	"file-zipper-api/repository"
 
 	"google.golang.org/api/idtoken"
 )
 
 type googleAuthRepo struct{}
 
-func NewGoogleAuthRepository() model.GoogleAuthRepository {
+func NewGoogleAuthRepository() repository.IGoogleAuthRepository {
 	return &googleAuthRepo{}
 }
 

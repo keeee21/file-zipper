@@ -19,7 +19,8 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	e.POST("/api/file-upload", fileController.UploadFile)
 
 	googleRepo := gateway.NewGoogleAuthRepository()
-	authUsecase := usecase.NewAuthUsecase(googleRepo)
+	userRepo := repository.NewUserRepository(db)
+	authUsecase := usecase.NewAuthUsecase(userRepo, googleRepo)
 	authHandler := controller.NewAuthHandler(authUsecase)
 
 	e.POST("/api/auth/google", authHandler.GoogleLogin)

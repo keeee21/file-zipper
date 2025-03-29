@@ -5,7 +5,3 @@ type GoogleAuthPayload struct {
 	Name  string
 	Sub   string
 }
-
-type GoogleAuthRepository interface {
-	VerifyIDToken(idToken string) (*GoogleAuthPayload, error)
-}
