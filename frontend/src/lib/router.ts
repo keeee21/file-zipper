@@ -97,13 +97,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/__layoutPrivate',
     name: 'LayoutPrivate',
     component: LayoutPrivate,
-    meta: { isPublic: false },
+    meta: { isPublic: true },
     children: [
         {
             component: Download,
             path: '/:id',
             name: 'download',
-            meta: { isPublic: false, title: 'ダウンロード' },
+            meta: { isPublic: true, title: 'ダウンロード' },
         },
     ],
   },
