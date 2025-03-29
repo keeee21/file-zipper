@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import AuthService from '@/services/AuthService';
 
 export function useFileUploader() {
   const previewFile = ref<string | null>(null);
@@ -58,6 +59,8 @@ export function useFileUploader() {
    * ファイルをアップロード
    */
   const uploadFile = async (password: string | null) => {
+    const accessToken = AuthService.getAccessToken(); 
+
     if (!fileData.value) {
       errorMessage.value = "ファイルが選択されていません";
       return false;
@@ -78,6 +81,9 @@ export function useFileUploader() {
       const response = await fetch('api/file-upload', {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       if (!response.ok) {

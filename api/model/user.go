@@ -15,4 +15,5 @@ type UserResponse struct {
 	GoogleSub string `json:"google_sub"`
 	Email     string `json:"email"`
 	Name      string `json:"name"`
+	Token     string `json:"token"`
 }

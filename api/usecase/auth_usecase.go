@@ -3,6 +3,7 @@ package usecase
 import (
 	"file-zipper-api/model"
 	"file-zipper-api/repository"
+	"file-zipper-api/util"
 )
 
 type AuthUsecase struct {
@@ -43,9 +44,15 @@ func (u *AuthUsecase) GoogleLogin(idToken string) (*model.UserResponse, error) {
 		_ = u.UserRepo.Update(user) // Note: 更新に失敗しても致命的じゃないのでエラー握りつぶしても良いかも
 	}
 
+	jwt, err := util.GenerateJWT(user.ID, user.GoogleSub)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.UserResponse{
 		GoogleSub: user.GoogleSub,
 		Email:     user.Email,
 		Name:      user.Name,
+		Token:     jwt,
 	}, nil
 }
