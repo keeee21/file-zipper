@@ -70,3 +70,18 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, uploadRes)
 }
+
+func (fc *FileController) GetFileNamesByRoomId(c echo.Context) error {
+	roomId := c.Param("roomID")
+
+	// ✅ ユースケースを呼び出し（エラーハンドリング追加）
+	fileNames, err := fc.fileUsecase.GetFileNamesByRoomId(roomId)
+	if err != nil {
+		fmt.Println("❌ ファイル名の取得に失敗:", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイル名の取得に失敗しました"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": map[string][]string{"fileNames": fileNames},
+	})
+}

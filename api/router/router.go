@@ -20,8 +20,12 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 
 	fileRepo := repository.NewFileRepository(db)
 	roomRepo := repository.NewDownloadRoomRepository(db)
-	fileUsecase := usecase.NewFileUsecase(fileRepo, roomRepo)
+	roomFileRepo := repository.NewRoomFilesRepository(db)
+	fileUsecase := usecase.NewFileUsecase(fileRepo, roomRepo, roomFileRepo)
 	fileController := controller.NewFileController(fileUsecase)
+
+	roomUsecase := usecase.NewDownloadRoomUsecase(roomRepo)
+	downloadRoomController := controller.NewDownloadRoomController(roomUsecase)
 
 	// 🔐 認証が必要なグループを定義
 	authGroup := e.Group("/api")
@@ -29,4 +33,6 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 
 	// 認証付きエンドポイント
 	authGroup.POST("/file-upload", fileController.UploadFile)
+	authGroup.GET("/rooms/:roomID/validity", downloadRoomController.CheckDownloadRoomValidity)
+	authGroup.GET("/files/:roomID/name", fileController.GetFileNamesByRoomId)
 }

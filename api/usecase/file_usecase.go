@@ -16,17 +16,23 @@ import (
 )
 
 type IFileUsecase interface {
+	GetFileNamesByRoomId(roomID string) ([]string, error)
 	Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error)
 	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
 }
 
 type fileUsecase struct {
-	fileRepo    repository.IFileRepository
-	roomRepo    repository.IDownloadRoomRepository
-	minioClient *minio.Client
+	fileRepo     repository.IFileRepository
+	roomRepo     repository.IDownloadRoomRepository
+	roomFileRepo repository.IRoomFilesRepository
+	minioClient  *minio.Client
 }
 
-func NewFileUsecase(fileRepo repository.IFileRepository, roomRepo repository.IDownloadRoomRepository) IFileUsecase {
+func NewFileUsecase(
+	fileRepo repository.IFileRepository,
+	roomRepo repository.IDownloadRoomRepository,
+	roomFileRepo repository.IRoomFilesRepository,
+) IFileUsecase {
 	// MinIO クライアントを作成
 	minioClient, err := minio.New("s3:9000", &minio.Options{
 		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESS_KEY"), os.Getenv("MINIO_SECRET_KEY"), ""),
@@ -37,10 +43,31 @@ func NewFileUsecase(fileRepo repository.IFileRepository, roomRepo repository.IDo
 	}
 
 	return &fileUsecase{
-		fileRepo:    fileRepo,
-		roomRepo:    roomRepo,
-		minioClient: minioClient,
+		fileRepo:     fileRepo,
+		roomRepo:     roomRepo,
+		roomFileRepo: roomFileRepo,
+		minioClient:  minioClient,
 	}
+}
+
+func (fu *fileUsecase) GetFileNamesByRoomId(roomId string) ([]string, error) {
+	fileIds, err := fu.roomFileRepo.GetFileIdsByRoomId(roomId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get fileIds: %w", err)
+	}
+	if len(fileIds) == 0 {
+		return nil, fmt.Errorf("no files associated with roomId: %s", roomId)
+	}
+
+	var names []string
+	for _, id := range fileIds {
+		file, err := fu.fileRepo.GetFileById(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get file %d: %w", id, err)
+		}
+		names = append(names, file.Name)
+	}
+	return names, nil
 }
 
 func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error) {
@@ -64,13 +91,11 @@ func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string)
 		return model.FileResponse{}, err
 	}
 
-	// 4 ダウンロードURLを返す
 	return model.FileResponse{ID: file.ID, Name: file.Name}, nil
 }
 
 func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string) (*model.DownloadRoom, error) {
 	roomID := util.GenerateULID()
-	url := fmt.Sprintf("%s/%s", os.Getenv("FRONTEND_ORIGIN"), roomID)
 
 	var hashedPassword *string
 	if pass != "" {
@@ -86,7 +111,6 @@ func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string) (*model
 
 	room := &model.DownloadRoom{
 		ID:        roomID,
-		URL:       url,
 		Password:  hashedPassword,
 		ExpiredAt: expiredAt,
 	}
