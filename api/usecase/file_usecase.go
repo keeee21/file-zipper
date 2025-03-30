@@ -8,6 +8,7 @@ import (
 	"file-zipper-api/util"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -17,8 +18,10 @@ import (
 
 type IFileUsecase interface {
 	GetFileNamesByRoomId(roomID string) ([]string, error)
+	GetFileByRoomId(roomID string) ([]model.File, error)
 	Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error)
 	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
+	GetSignedUrl(fileId string) (string, error)
 }
 
 type fileUsecase struct {
@@ -65,9 +68,29 @@ func (fu *fileUsecase) GetFileNamesByRoomId(roomId string) ([]string, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to get file %d: %w", id, err)
 		}
-		names = append(names, file.Name)
+		names = append(names, file.OriginalName)
 	}
 	return names, nil
+}
+
+func (fu *fileUsecase) GetFileByRoomId(roomId string) ([]model.File, error) {
+	fileIds, err := fu.roomFileRepo.GetFileIdsByRoomId(roomId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get fileIds: %w", err)
+	}
+	if len(fileIds) == 0 {
+		return nil, fmt.Errorf("no files associated with roomId: %s", roomId)
+	}
+
+	var files []model.File
+	for _, id := range fileIds {
+		file, err := fu.fileRepo.GetFileById(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get file %d: %w", id, err)
+		}
+		files = append(files, file)
+	}
+	return files, nil
 }
 
 func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error) {
@@ -121,4 +144,29 @@ func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string) (*model
 	}
 
 	return room, nil
+}
+
+func (fu *fileUsecase) GetSignedUrl(fileName string) (string, error) {
+	ctx := context.Background()
+	bucketName := os.Getenv("BUCKET_NAME")
+
+	reqParams := make(url.Values)
+	presignedUrl, err := fu.minioClient.PresignedGetObject(
+		ctx,
+		bucketName,
+		fileName,
+		time.Minute*15,
+		reqParams,
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate signed URL: %w", err)
+	}
+
+	// ✅ URLのhost部分を書き換える
+	presignedUrl.Host = "localhost:9000"
+
+	// ✅ 必要ならSchemeも明示的にhttpに
+	presignedUrl.Scheme = "http"
+
+	return presignedUrl.String(), nil
 }

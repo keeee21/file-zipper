@@ -41,7 +41,7 @@ services:
     image: minio/minio:latest
     container_name: file-zipper_s3
     ports:
-      - '9000:9000'
+      # - '9000:9000'
       - '8900:8900'
     volumes:
       - ./minio/data:/data
@@ -60,6 +60,17 @@ services:
       mc mb --ignore-existing my_minio/files.localhost;
       exit 0;
       "
+  nginx:
+    image: nginx:stable-alpine
+    container_name: file-zipper_nginx
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - s3
+    networks:
+      - default
 volumes:
   file_zipper_db:
 networks:

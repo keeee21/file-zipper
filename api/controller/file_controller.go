@@ -85,3 +85,37 @@ func (fc *FileController) GetFileNamesByRoomId(c echo.Context) error {
 		"data": map[string][]string{"fileNames": fileNames},
 	})
 }
+
+func (fc *FileController) GetSignedUrl(c echo.Context) error {
+	roomId := c.Param("roomID")
+	signedUrls := make([]string, 0)
+
+	files, err := fc.fileUsecase.GetFileByRoomId(roomId)
+	if err != nil {
+		fmt.Println("❌ ファイルの取得に失敗:", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "ファイルの取得に失敗しました",
+		})
+	}
+	if len(files) == 0 {
+		fmt.Println("❌ roomIdに関連付けられたファイルがありません")
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "roomIdに関連付けられたファイルがありません",
+		})
+	}
+
+	for _, file := range files {
+		url, err := fc.fileUsecase.GetSignedUrl(file.Name)
+		if err != nil {
+			fmt.Printf("❌ サイン付きURLの取得に失敗 (fileID=%d): %v\n", file.ID, err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "サイン付きURLの取得に失敗しました",
+			})
+		}
+		signedUrls = append(signedUrls, url)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": signedUrls,
+	})
+}

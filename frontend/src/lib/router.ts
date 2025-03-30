@@ -45,13 +45,20 @@ const routes: Array<RouteRecordRaw> = [
             component: Index,
             path: '/',
             name: 'index',
-            meta: { isPublic: false }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
+            meta: { isPublic: false, title: 'Upload' }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
         },
         {
             component: Login,
             path: '/login',
             name: 'login',
             meta: { isPublic: true, title: 'Login' },
+            beforeEnter: (from, to, next) => {
+              if (AuthService.isLoggedIn()) {
+                  next({ name: 'index' });
+              } else {
+                  next();
+              }
+          },
         },
         {
             component: NotFound,

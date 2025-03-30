@@ -35,4 +35,5 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	authGroup.POST("/file-upload", fileController.UploadFile)
 	authGroup.GET("/rooms/:roomID/validity", downloadRoomController.CheckDownloadRoomValidity)
 	authGroup.GET("/files/:roomID/name", fileController.GetFileNamesByRoomId)
+	authGroup.POST("/files/:roomID/signed-url", fileController.GetSignedUrl)
 }
