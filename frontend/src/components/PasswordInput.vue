@@ -28,7 +28,7 @@ const updatePassword = (event: Event) => {
   </div>
 
   <div v-if="isPasswordEnabled" class="password-field">
-    <input type="text" :value="password" @input="updatePassword" class="password-input" />
+    <input type="text" :value="password" class="password-input" @input="updatePassword" />
   </div>
 </template>
 

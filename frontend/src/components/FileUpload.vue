@@ -4,16 +4,7 @@ import { defineEmits, ref } from 'vue';
 
 const fileName = ref('');
 
-const { 
-  pickFile,
-  previewFile,
-  isDragging,
-  fileData,
-  fileInput,
-  selectFile,
-  handleDragOver,
-  handleDragLeave
-} = useFileUploader();
+const { pickFile, previewFile, isDragging, fileData, fileInput, selectFile, handleDragOver, handleDragLeave } = useFileUploader();
 const emit = defineEmits(['update:fileData']);
 
 /**
@@ -21,29 +12,24 @@ const emit = defineEmits(['update:fileData']);
  */
 const handleFileChange = (event: Event) => {
   pickFile(event);
-  emit("update:fileData", fileData.value);
+  emit('update:fileData', fileData.value);
 };
 </script>
 
 <template>
-  <div class="upload-box"
-      :class="{ 'dragging': isDragging }"
-      @click="selectFile"
-      @dragover.prevent="handleDragOver"
-      @dragleave="handleDragLeave"
-      @drop.prevent="pickFile($event)"
-    >
+  <div
+    class="upload-box"
+    :class="{ dragging: isDragging }"
+    @click="selectFile"
+    @dragover.prevent="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop.prevent="pickFile($event)"
+  >
     <span v-if="!previewFile" class="upload-text">ファイルを選択 または ドラッグ&ドロップ</span>
     <img v-else :src="previewFile" class="preview-image" />
   </div>
 
-  <input
-    ref="fileInput"
-    type="file"
-    @change="handleFileChange"
-    accept="*"
-    style="display: none"
-  />
+  <input ref="fileInput" type="file" accept="*" style="display: none" @change="handleFileChange" />
 
   <p v-if="fileName" class="file-name">{{ fileName }}</p>
 </template>

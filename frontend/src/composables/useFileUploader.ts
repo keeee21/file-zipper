@@ -14,7 +14,7 @@ export function useFileUploader() {
    */
   const selectFile = () => {
     if (!fileInput.value) {
-      errorMessage.value = "ファイルが見つかりません";
+      errorMessage.value = 'ファイルが見つかりません';
       return;
     }
     fileInput.value.click();
@@ -59,27 +59,27 @@ export function useFileUploader() {
    * ファイルをアップロード
    */
   const uploadFile = async (password: string | null) => {
-    const accessToken = AuthService.getAccessToken(); 
+    const accessToken = AuthService.getAccessToken();
 
     if (!fileData.value) {
-      errorMessage.value = "ファイルが選択されていません";
+      errorMessage.value = 'ファイルが選択されていません';
       return false;
     }
-    const actualFileName = fileData.value.name || "unknown";
+    const actualFileName = fileData.value.name || 'unknown';
 
     isUploading.value = true;
     errorMessage.value = null;
 
     try {
       const formData = new FormData();
-      formData.append("file", fileData.value);
-      formData.append("fileName", actualFileName);
+      formData.append('file', fileData.value);
+      formData.append('fileName', actualFileName);
       if (password) {
-        formData.append("password", password);
+        formData.append('password', password);
       }
 
       const response = await fetch('api/file-upload', {
-        method: "POST",
+        method: 'POST',
         body: formData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -87,13 +87,13 @@ export function useFileUploader() {
       });
 
       if (!response.ok) {
-        throw new Error("File upload failed.");
+        throw new Error('File upload failed.');
       }
 
       return true;
     } catch (error) {
-      console.log("❌ アップロードエラー:", error);
-      errorMessage.value = "アップロードに失敗しました。再試行してください。";
+      console.log('❌ アップロードエラー:', error);
+      errorMessage.value = 'アップロードに失敗しました。再試行してください。';
       return false;
     } finally {
       isUploading.value = false;

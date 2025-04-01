@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { downloadFile } from '@/composables/fileDownload'
-import { useGetRoomValidity } from '@/composables/useIsValidUrl'
-import { useGetFileNames } from '@/composables/useGetFileNames'
-import { useGetSignedUrl } from '@/composables/useGetSignedUrl'
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { downloadFile } from '@/composables/fileDownload';
+import { useGetRoomValidity } from '@/composables/useIsValidUrl';
+import { useGetFileNames } from '@/composables/useGetFileNames';
+import { useGetSignedUrl } from '@/composables/useGetSignedUrl';
 
-const route = useRoute()
-const roomId = route.params.id as string
+const route = useRoute();
+const roomId = route.params.id as string;
 
-const fileNames = ref<string[]>([])
-const password = ref<string>('')
-const isValidUrl = ref<boolean>(false)
+const fileNames = ref<string[]>([]);
+const password = ref<string>('');
+const isValidUrl = ref<boolean>(false);
 
 onMounted(async () => {
   // このroomが存在していて、かつ有効期限が切れていないかを確認する
-  const isValidRoomRes = await useGetRoomValidity(roomId)
-  isValidUrl.value = isValidRoomRes.isValid
+  const isValidRoomRes = await useGetRoomValidity(roomId);
+  isValidUrl.value = isValidRoomRes.isValid;
   if (!isValidUrl.value) {
-    alert('このURLは無効です。')
+    alert('このURLは無効です。');
     // window.location.href = '/'
     // Note: いきなりリダイレクトは親切ではないので、レンダリング後にナビゲーションする
   }
 
   // ファイル名等を取得する
-  const useGetFileRes = await useGetFileNames(roomId)
+  const useGetFileRes = await useGetFileNames(roomId);
   if (useGetFileRes.data.fileNames) {
-    fileNames.value = useGetFileRes.data.fileNames
+    fileNames.value = useGetFileRes.data.fileNames;
   } else {
-    alert('ファイル情報の取得に失敗しました。')
-    window.location.reload()
+    alert('ファイル情報の取得に失敗しました。');
+    window.location.reload();
   }
-})
+});
 
 // ダウンロード
 const handleDownload = async () => {
@@ -46,28 +46,22 @@ const handleDownload = async () => {
   } else {
     alert('ダウンロードに失敗しました。パスワードが間違っている可能性があります。');
   }
-}
+};
 </script>
 
 <template>
   <div class="download-container">
     <h2 class="title">ファイルダウンロード</h2>
-    <p class="filename">ファイル名: <strong>{{ fileNames }}</strong></p>
+    <p class="filename">
+      ファイル名: <strong>{{ fileNames }}</strong>
+    </p>
 
     <div class="password-row">
       <label for="password-input" class="password-label">パスワード:</label>
-      <input
-        id="password-input"
-        v-model="password"
-        type="password"
-        placeholder="パスワードを入力"
-        class="password-input"
-      />
+      <input id="password-input" v-model="password" type="password" placeholder="パスワードを入力" class="password-input" />
     </div>
 
-    <button @click="handleDownload" class="download-button">
-      ダウンロード
-    </button>
+    <button class="download-button" @click="handleDownload">ダウンロード</button>
   </div>
 </template>
 

@@ -31,7 +31,7 @@ const handleUpload = async () => {
 
   const success = await uploadFile(password.value);
   if (success) {
-    alert("File uploaded successfully!");
+    alert('File uploaded successfully!');
   }
 };
 </script>
@@ -40,19 +40,13 @@ const handleUpload = async () => {
   <div class="upload-container">
     <h1 class="title">File Zipper</h1>
 
-    <FileUpload @update:fileData="fileData = $event" />
-    
-    <PasswordInput 
-      v-model:isPasswordEnabled="isPasswordEnabled"
-      v-model:password="password"
-      @toggle="handlePasswordToggle"
-    />
+    <FileUpload @update:file-data="fileData = $event" />
+
+    <PasswordInput v-model:is-password-enabled="isPasswordEnabled" v-model:password="password" @toggle="handlePasswordToggle" />
 
     <span v-if="errorMessage">{{ errorMessage }}</span>
 
-    <button @click="handleUpload" class="upload-button">
-      Upload File
-    </button>
+    <button class="upload-button" @click="handleUpload">Upload File</button>
   </div>
 </template>
 

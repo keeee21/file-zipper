@@ -8,7 +8,7 @@ import NotFound from '@/pages/NotFound.vue';
 import InternalServerError from '@/pages/InternalServerError.vue';
 import Login from '@/pages/Login.vue';
 import Index from '@/pages/Index.vue';
-import Download from '@/pages/[id]/index.vue'
+import Download from '@/pages/[id]/index.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -41,77 +41,77 @@ const routes: Array<RouteRecordRaw> = [
     component: LayoutNoHeader,
     meta: { isPublic: true, noHeader: true },
     children: [
-        {
-            component: Index,
-            path: '/',
-            name: 'index',
-            meta: { isPublic: false, title: 'Upload' }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
+      {
+        component: Index,
+        path: '/',
+        name: 'index',
+        meta: { isPublic: false, title: 'Upload' }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
+      },
+      {
+        component: Login,
+        path: '/login',
+        name: 'login',
+        meta: { isPublic: true, title: 'Login' },
+        beforeEnter: (from, to, next) => {
+          if (AuthService.isLoggedIn()) {
+            next({ name: 'index' });
+          } else {
+            next();
+          }
         },
-        {
-            component: Login,
-            path: '/login',
-            name: 'login',
-            meta: { isPublic: true, title: 'Login' },
-            beforeEnter: (from, to, next) => {
-              if (AuthService.isLoggedIn()) {
-                  next({ name: 'index' });
-              } else {
-                  next();
-              }
-          },
-        },
-        {
-            component: NotFound,
-            path: '/404',
-            name: 'notFound',
-            meta: { isPublic: true, noHeader: true, title: '404' },
-        },
-        {
-            component: InternalServerError,
-            path: '/500',
-            name: 'internalServerError',
-            meta: { noHeader: true, isPublic: true, title: '500' },
-        },
+      },
+      {
+        component: NotFound,
+        path: '/404',
+        name: 'notFound',
+        meta: { isPublic: true, noHeader: true, title: '404' },
+      },
+      {
+        component: InternalServerError,
+        path: '/500',
+        name: 'internalServerError',
+        meta: { noHeader: true, isPublic: true, title: '500' },
+      },
     ],
   },
 
   /*
-    *
-    *
-    * Public pages - 認証不要なヘッダー
-    */
+   *
+   *
+   * Public pages - 認証不要なヘッダー
+   */
   {
     path: '/__layoutPublic',
     name: 'LayoutPublic',
     component: LayoutPublic,
     meta: { isPublic: true },
     children: [
-        // {
-        //     component: sample,
-        //     path: '/sample',
-        //     name: 'sample',
-        //     meta: { isPublic: true, title: 'title' },
-        // },
+      // {
+      //     component: sample,
+      //     path: '/sample',
+      //     name: 'sample',
+      //     meta: { isPublic: true, title: 'title' },
+      // },
     ],
   },
 
   /*
-    *
-    *
-    * Private pages - 認証必要なヘッダー
-    */
+   *
+   *
+   * Private pages - 認証必要なヘッダー
+   */
   {
     path: '/__layoutPrivate',
     name: 'LayoutPrivate',
     component: LayoutPrivate,
     meta: { isPublic: true },
     children: [
-        {
-            component: Download,
-            path: '/:id',
-            name: 'download',
-            meta: { isPublic: true, title: 'ダウンロード' },
-        },
+      {
+        component: Download,
+        path: '/:id',
+        name: 'download',
+        meta: { isPublic: true, title: 'ダウンロード' },
+      },
     ],
   },
 
@@ -132,9 +132,9 @@ const router: Router = createRouter({
 router.beforeEach((to, from, next) => {
   const loggedIn = AuthService.isLoggedIn();
   if (to.matched.some((record) => !record.meta.isPublic) && !loggedIn) {
-      next('/login');
+    next('/login');
   } else {
-      next();
+    next();
   }
 });
 

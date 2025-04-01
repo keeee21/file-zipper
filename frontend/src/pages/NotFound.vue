@@ -5,7 +5,7 @@
       <p class="error__name">Page Not Found</p>
       <p class="error__detail">ページが見つかりませんでした。</p>
       <div class="pagetopButtonWrap">
-          <RouterLink to="/" class="pagetopButtonWrap__button">TOPページに戻る</RouterLink>
+        <RouterLink to="/" class="pagetopButtonWrap__button">TOPページに戻る</RouterLink>
       </div>
     </div>
   </div>

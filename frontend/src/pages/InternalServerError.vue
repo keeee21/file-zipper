@@ -4,9 +4,9 @@
       <h2 class="error__title">500</h2>
       <p class="error__name">Internal Server Error</p>
       <p class="error__detail">
-          アクセスしようとしたページは<br />
-          表示できませんでした。<br />
-          お手数ですが、しばらく時間を置いてから再度お試しください。
+        アクセスしようとしたページは<br />
+        表示できませんでした。<br />
+        お手数ですが、しばらく時間を置いてから再度お試しください。
       </p>
       <div class="pagetopButtonWrap">
         <RouterLink to="/" class="pagetopButtonWrap__button">TOPページに戻る</RouterLink>

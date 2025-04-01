@@ -1,26 +1,23 @@
-import AuthService from '@/services/AuthService'
+import AuthService from '@/services/AuthService';
 
-const accessToken = AuthService.getAccessToken()
+const accessToken = AuthService.getAccessToken();
 type UseGetSignedUrlResponse = {
   data: string[];
-}
+};
 
 /**
  * signedUrlを取得する
- * @param roomId 
- * @param password 
- * @returns 
+ * @param roomId
+ * @param password
+ * @returns
  */
-export const useGetSignedUrl = async (
-  roomId: string,
-  password: string
-): Promise<UseGetSignedUrlResponse> => {
+export const useGetSignedUrl = async (roomId: string, password: string): Promise<UseGetSignedUrlResponse> => {
   try {
     const res = await fetch(`/api/files/${roomId}/signed-url`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ password }),
     });
@@ -36,4 +33,4 @@ export const useGetSignedUrl = async (
     console.error('Error getting signed URL:', error);
     return { data: [] };
   }
-}
+};
