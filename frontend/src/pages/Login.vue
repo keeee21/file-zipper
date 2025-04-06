@@ -1,26 +1,38 @@
 <script setup lang="ts">
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const LOCAL_STORAGE_ACCESS_TOKEN_KEY = 'accessToken';
+import { useRouter } from 'vue-router';
+import AuthService from '@/services/AuthService';
+import { useAuthStore } from '@/store/auth';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 interface GoogleCredentialResponse {
   credential: string;
   select_by?: string;
   clientId?: string;
 }
 
+const router = useRouter();
+const authStore = useAuthStore();
+
 const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
   const idToken = response.credential;
 
-  // バックエンドにトークン送信
-  const res = await fetch('api/auth/google', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken }),
-  });
+  try {
+    // バックエンドにトークン送信
+    const res = await fetch('api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
 
-  const data = await res.json();
-  if (data.user?.token) {
-    localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.user.token);
+    const data = await res.json();
+    if (data.user) {
+      await authStore.setAuth(data.user);
+    }
+
+    router.push({ name: 'index' });
+  } catch (e) {
+    AuthService.logout();
+    console.error('Error handling Google credential response:', e);
   }
 };
 

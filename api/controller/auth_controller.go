@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"file-zipper-api/usecase"
+	"file-zipper-api/util"
 
 	"github.com/labstack/echo/v4"
 )
@@ -34,5 +35,28 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"user":    user,
+	})
+}
+
+func (h *AuthHandler) GetUserInfo(c echo.Context) error {
+	// ミドルウェアでセットされた userID を取得
+	userIDInterface := c.Get("userID")
+	if userIDInterface == nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid user id"})
+	}
+
+	// DBからユーザー情報を取得
+	user, err := h.usecase.UserRepo.FindByID(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to fetch user"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"user": user,
 	})
 }

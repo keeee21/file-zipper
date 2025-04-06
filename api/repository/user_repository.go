@@ -7,6 +7,7 @@ import (
 )
 
 type IUserRepository interface {
+	FindByID(id uint) (*model.User, error)
 	FindByGoogleSub(googleSub string) (*model.User, error)
 	Create(user *model.User) error
 	Update(user *model.User) error
@@ -18,6 +19,15 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &userRepository{db: db}
+}
+
+func (ur *userRepository) FindByID(id uint) (*model.User, error) {
+	var user model.User
+	err := ur.db.First(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (ur *userRepository) FindByGoogleSub(googleSub string) (*model.User, error) {

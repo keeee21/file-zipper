@@ -6,6 +6,10 @@ interface JwtPayload {
 }
 
 class AuthService {
+  saveToken(token: string): void {
+    localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, token);
+  }
+
   getAccessToken(): string {
     return localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY) || '';
   }
@@ -27,6 +31,10 @@ class AuthService {
     } catch {
       return null;
     }
+  }
+
+  logout(): void {
+    localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
   }
 }
 

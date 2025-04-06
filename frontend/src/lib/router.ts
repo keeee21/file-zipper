@@ -52,7 +52,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/login',
         name: 'login',
         meta: { isPublic: true, title: 'Login' },
-        beforeEnter: (from, to, next) => {
+        beforeEnter: (_from, _to, next) => {
           if (AuthService.isLoggedIn()) {
             next({ name: 'index' });
           } else {
@@ -129,7 +129,7 @@ const router: Router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const loggedIn = AuthService.isLoggedIn();
   if (to.matched.some((record) => !record.meta.isPublic) && !loggedIn) {
     next('/login');

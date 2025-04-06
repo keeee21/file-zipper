@@ -32,6 +32,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	authGroup.Use(middleware.JWTMiddleware)
 
 	// 認証付きエンドポイント
+	authGroup.GET("/user/info", authHandler.GetUserInfo)
 	authGroup.POST("/file-upload", fileController.UploadFile)
 	authGroup.GET("/rooms/:roomID/validity", downloadRoomController.CheckDownloadRoomValidity)
 	authGroup.GET("/files/:roomID/name", fileController.GetFileNamesByRoomId)
