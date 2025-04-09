@@ -42,12 +42,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: { isPublic: true, noHeader: true },
     children: [
       {
-        component: Index,
-        path: '/',
-        name: 'index',
-        meta: { isPublic: false, title: 'Upload' }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
-      },
-      {
         component: Login,
         path: '/login',
         name: 'login',
@@ -106,6 +100,12 @@ const routes: Array<RouteRecordRaw> = [
     component: LayoutPrivate,
     meta: { isPublic: true },
     children: [
+      {
+        component: Index,
+        path: '/',
+        name: 'index',
+        meta: { isPublic: false, title: 'Upload' }, // ログイン無しで来て、ログイン状態にしたいので isPublic: false にしている
+      },
       {
         component: Download,
         path: '/:id',
