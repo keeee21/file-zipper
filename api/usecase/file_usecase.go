@@ -21,6 +21,7 @@ type IFileUsecase interface {
 	GetFileByRoomId(roomID string) ([]model.File, error)
 	Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error)
 	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
+	CreateRoomFile(roomID string, fileID uint) error
 	GetSignedUrl(fileId string) (string, error)
 }
 
@@ -169,4 +170,12 @@ func (fu *fileUsecase) GetSignedUrl(fileName string) (string, error) {
 	presignedUrl.Scheme = "http"
 
 	return presignedUrl.String(), nil
+}
+
+func (fu *fileUsecase) CreateRoomFile(roomID string, fileID uint) error {
+	err := fu.roomFileRepo.Create(roomID, fileID)
+	if err != nil {
+		return fmt.Errorf("failed to create room_file: %w", err)
+	}
+	return nil
 }

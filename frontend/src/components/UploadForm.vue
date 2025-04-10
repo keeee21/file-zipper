@@ -5,8 +5,9 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { useFileUploader } from '@/composables/useFileUploader';
 
 const { uploadFile, errorMessage, fileData } = useFileUploader();
-const isPasswordEnabled = ref(false);
-const password = ref('');
+const isPasswordEnabled = ref<boolean>(false);
+const password = ref<string>('');
+const downloadLink = ref<string>('');
 
 // パスワードトグルの処理
 const handlePasswordToggle = (enabled: boolean) => {
@@ -29,9 +30,9 @@ const handleUpload = async () => {
     return;
   }
 
-  const success = await uploadFile(password.value);
-  if (success) {
-    alert('File uploaded successfully!');
+  const res = await uploadFile(password.value);
+  if (res) {
+    downloadLink.value = res.url;
   }
 };
 </script>
@@ -45,6 +46,10 @@ const handleUpload = async () => {
     <PasswordInput v-model:is-password-enabled="isPasswordEnabled" v-model:password="password" @toggle="handlePasswordToggle" />
 
     <span v-if="errorMessage">{{ errorMessage }}</span>
+
+    <span v-if="downloadLink"
+      >Download Link: <a :href="downloadLink" target="_blank">{{ downloadLink }}</a></span
+    >
 
     <button class="upload-button" @click="handleUpload">Upload File</button>
   </div>

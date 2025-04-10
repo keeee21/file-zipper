@@ -90,13 +90,12 @@ export function useFileUploader() {
         throw new Error('File upload failed.');
       }
 
-      return true;
+      isUploading.value = false;
+      return response.json();
     } catch (error) {
       console.log('❌ アップロードエラー:', error);
       errorMessage.value = 'アップロードに失敗しました。再試行してください。';
       return false;
-    } finally {
-      isUploading.value = false;
     }
   };
 

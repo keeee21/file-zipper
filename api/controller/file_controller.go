@@ -5,6 +5,7 @@ import (
 	"file-zipper-api/usecase"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 )
@@ -68,7 +69,20 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 	}
 	fmt.Println("✅ ダウンロードルームを作成しました:", downloadRoomRes)
 
-	return c.JSON(http.StatusOK, uploadRes)
+	// ダウンロードルームIDと、fileIDを使って、room_filesテーブルにレコードを作成
+	err = fc.fileUsecase.CreateRoomFile(downloadRoomRes.ID, uploadRes.ID)
+	if err != nil {
+		fmt.Println("❌ room_filesテーブルの作成に失敗:", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "room_filesテーブルの作成に失敗しました"})
+	}
+	fmt.Println("✅ room_filesテーブルを作成しました")
+
+	res := map[string]interface{}{
+		"name": uploadRes.Name,
+		"url":  os.Getenv("FRONTEND_ORIGIN") + downloadRoomRes.ID,
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func (fc *FileController) GetFileNamesByRoomId(c echo.Context) error {
