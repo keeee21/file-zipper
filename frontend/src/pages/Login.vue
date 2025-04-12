@@ -3,6 +3,8 @@ import { useRouter } from 'vue-router';
 import AuthService from '@/services/AuthService';
 import { useAuthStore } from '@/store/auth';
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 interface GoogleCredentialResponse {
   credential: string;
@@ -41,6 +43,29 @@ window.handleCredentialResponse = handleCredentialResponse;
 </script>
 
 <template>
-  <div id="g_id_onload" :data-client_id="GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
-  <div class="g_id_signin" data-type="standard"></div>
+  <div id="fv">
+    <Card class="w-full max-w-md shadow-lg">
+      <CardHeader>
+        <CardTitle>File Zipper</CardTitle>
+        <CardDescription>Login with your Google account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div id="g_id_onload" :data-client_id="GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+        <div class="g_id_signin" data-type="standard"></div>
+      </CardContent>
+    </Card>
+  </div>
 </template>
+
+<style scoped>
+#fv {
+  background: linear-gradient(135deg, #5cc9fc, #6afb87);
+  width: 100%;
+  height: 100vh;
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
