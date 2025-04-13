@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { Home, BookOpen, GraduationCap, Settings } from 'lucide-vue-next';
 import {
   Sidebar,
@@ -11,29 +12,36 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
+const router = useRouter();
+
 // Menu items.
 const items = [
   {
     title: 'Home',
-    url: '#',
+    url: '/',
     icon: Home,
   },
   {
     title: 'What is File Zipper?',
-    url: '#',
+    url: '/what-is',
     icon: BookOpen,
   },
   {
     title: 'How to use',
-    url: '#',
+    url: '/how-to-use',
     icon: GraduationCap,
   },
   {
     title: 'Settings',
-    url: '#',
+    url: '/settings',
     icon: Settings,
   },
 ];
+
+// ページ遷移処理
+const navigate = (url: string) => {
+  router.push(url);
+};
 </script>
 
 <template>
@@ -44,11 +52,11 @@ const items = [
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-              <SidebarMenuButton as-child>
-                <a :href="item.url">
+              <SidebarMenuButton as-child @click="navigate(item.url)">
+                <div class="flex items-center gap-2 cursor-pointer">
                   <component :is="item.icon" />
                   <span>{{ item.title }}</span>
-                </a>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
