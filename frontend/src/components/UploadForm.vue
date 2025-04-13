@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Send } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 
 import FileUpload from '@/components/FileUpload.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
@@ -23,6 +24,17 @@ const handleUpload = async () => {
     downloadLink.value = res.url;
   }
 };
+
+const copyToClipboard = async () => {
+  if (downloadLink.value) {
+    try {
+      await navigator.clipboard.writeText(downloadLink.value);
+      toast('リンクをコピーしました！');
+    } catch (e) {
+      toast('コピーに失敗しました');
+    }
+  }
+};
 </script>
 
 <template>
@@ -32,13 +44,15 @@ const handleUpload = async () => {
 
     <p v-if="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</p>
 
-    <p v-if="downloadLink" class="text-sm text-green-700 break-all">
-      Download Link: <a :href="downloadLink" target="_blank" class="underline hover:text-green-900">{{ downloadLink }}</a>
-    </p>
+    <div v-if="downloadLink" class="flex items-center justify-center gap-2">
+      <Button variant="outline" size="sm" class="text-green-700 border-green-700 hover:bg-green-100 transition" @click="copyToClipboard">
+        {{ downloadLink }}
+      </Button>
+    </div>
 
-    <Button class="w-full flex items-center justify-center gap-2" @click="handleUpload">
+    <Button class="w-full flex items-center justify-center gap-2" :disabled="!!downloadLink" @click="handleUpload">
       <Send class="w-4 h-4" />
-      Upload File
+      {{ downloadLink ? 'Already Uploaded' : 'Upload File' }}
     </Button>
   </div>
 </template>
