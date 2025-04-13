@@ -1,7 +1,9 @@
-import $axios, { getCacheConfig } from '../lib/axios';
-import type { CacheAxiosResponse } from 'axios-cache-interceptor';
 import type { AxiosException } from '@/lib/types';
 import type { InfoUserResponse } from '@/store/types';
+
+import $axios, { getCacheConfig } from '../lib/axios';
+
+import type { CacheAxiosResponse } from 'axios-cache-interceptor';
 
 class UserService {
   async getInfo(useCache = false): Promise<InfoUserResponse> {

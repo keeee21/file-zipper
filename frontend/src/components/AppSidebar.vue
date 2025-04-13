@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 import { Home, BookOpen, GraduationCap, Settings } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+
 import {
   Sidebar,
   SidebarContent,

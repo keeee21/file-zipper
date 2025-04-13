@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-vue-next';
 import { AccordionHeader, AccordionTrigger, type AccordionTriggerProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
+
+import { cn } from '@/lib/utils';
 
 const props = defineProps<AccordionTriggerProps & { class?: HTMLAttributes['class'] }>();
 

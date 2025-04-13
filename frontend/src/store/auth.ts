@@ -1,9 +1,12 @@
+import { defineStore } from 'pinia';
+
 import AuthService from '@/services/AuthService';
 import UserService from '@/services/UserService';
-import { defineStore } from 'pinia';
-import type { Router } from 'vue-router';
-import type { AuthState, GoogleAuthCallbackResponseUser, User } from './types';
+
 import { useUserStore } from './user';
+
+import type { AuthState, GoogleAuthCallbackResponseUser, User } from './types';
+import type { Router } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({ token: AuthService.getAccessToken() }),

@@ -1,4 +1,5 @@
 import $axios from '@/lib/axios';
+
 import AuthService from '../services/AuthService';
 
 const setupAxiosInterceptors = () => {

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { LockKeyhole } from 'lucide-vue-next';
 import { Package } from 'lucide-vue-next';
 import { Hourglass } from 'lucide-vue-next';
-import { Separator } from '@/components/ui/separator';
-import { Upload, Share, Download } from 'lucide-vue-next';
+
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 </script>
 
 <template>
@@ -19,56 +18,6 @@ import { Upload, Share, Download } from 'lucide-vue-next';
       </CardHeader>
 
       <CardContent class="space-y-4">
-        <!-- ファイルの送り方 -->
-        <div>
-          <h3 class="text-lg font-bold mb-4">ファイルの送り方</h3>
-
-          <div class="space-y-4">
-            <Card class="p-4 flex gap-4 items-start">
-              <Upload class="text-blue-500 mt-1" />
-              <div>
-                <p class="font-semibold">Step 1: ファイルを選択</p>
-                <p class="text-sm text-muted-foreground">「Home」画面からアップロードしたいファイルを選択してください。</p>
-              </div>
-            </Card>
-
-            <Card class="p-4 flex gap-4 items-start">
-              <Share class="text-green-500 mt-1" />
-              <div>
-                <p class="font-semibold">Step 2: URLとパスワードを共有</p>
-                <p class="text-sm text-muted-foreground">アップロード後に表示されたURLとパスワードを相手に共有してください。</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        <Separator />
-
-        <!-- ファイルの受け取り方 -->
-        <div>
-          <h3 class="text-lg font-bold mb-4">ファイルの受け取り方</h3>
-
-          <div class="space-y-4">
-            <Card class="p-4 flex gap-4 items-start">
-              <Download class="text-purple-600 mt-1" />
-              <div>
-                <p class="font-semibold">Step 1: URLにアクセス</p>
-                <p class="text-sm text-muted-foreground">送られてきたURLにアクセスします。</p>
-              </div>
-            </Card>
-
-            <Card class="p-4 flex gap-4 items-start">
-              <Download class="text-purple-600 mt-1" />
-              <div>
-                <p class="font-semibold">Step 2: ダウンロード</p>
-                <p class="text-sm text-muted-foreground">パスワードを入力して、ダウンロードボタンを押すとファイルを受け取れます。</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        <Separator />
-
         <h3 class="text-lg font-bold mb-4">File Zipperの特徴</h3>
         <Accordion type="single" collapsible class="w-full">
           <AccordionItem value="feature1">

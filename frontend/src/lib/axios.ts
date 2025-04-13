@@ -1,5 +1,5 @@
-import { setupCache, type CacheOptions as AxiosCacheOptions, buildMemoryStorage, buildKeyGenerator } from 'axios-cache-interceptor';
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import { setupCache, type CacheOptions as AxiosCacheOptions, buildMemoryStorage, buildKeyGenerator } from 'axios-cache-interceptor';
 import { md5 } from 'js-md5';
 
 const axiosCreateConfig: AxiosRequestConfig = {

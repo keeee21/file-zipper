@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { Send } from 'lucide-vue-next';
 import { ref } from 'vue';
+
 import FileUpload from '@/components/FileUpload.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
-import { useFileUploader } from '@/composables/useFileUploader';
 import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-vue-next';
+import { useFileUploader } from '@/composables/useFileUploader';
 
 const { uploadFile, errorMessage, fileData } = useFileUploader();
 const password = ref<string>('');

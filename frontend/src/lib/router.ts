@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router';
 
-import AuthService from '@/services/AuthService';
-import LayoutNoHeader from '@/pages/Layouts/NoHeader.vue';
-import LayoutPublic from '@/pages/Layouts/Public.vue';
-import LayoutPrivate from '@/pages/Layouts/Private.vue';
-import NotFound from '@/pages/NotFound.vue';
-import InternalServerError from '@/pages/InternalServerError.vue';
-import Login from '@/pages/Login.vue';
-import Index from '@/pages/Index.vue';
 import Download from '@/pages/[id]/index.vue';
-import WhatIs from '@/pages/what-is/index.vue';
 import HowToUse from '@/pages/how-to-use/index.vue';
+import Index from '@/pages/Index.vue';
+import InternalServerError from '@/pages/InternalServerError.vue';
+import LayoutNoHeader from '@/pages/Layouts/NoHeader.vue';
+import LayoutPrivate from '@/pages/Layouts/Private.vue';
+import LayoutPublic from '@/pages/Layouts/Public.vue';
+import Login from '@/pages/Login.vue';
+import NotFound from '@/pages/NotFound.vue';
+import WhatIs from '@/pages/what-is/index.vue';
+import AuthService from '@/services/AuthService';
 
 declare module 'vue-router' {
   interface RouteMeta {

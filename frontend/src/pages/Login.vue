@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import AuthService from '@/services/AuthService';
-import { useAuthStore } from '@/store/auth';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AuthService from '@/services/AuthService';
+import { useAuthStore } from '@/store/auth';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 interface GoogleCredentialResponse {

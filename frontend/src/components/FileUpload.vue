@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useFileUploader } from '@/composables/useFileUploader';
 import { defineEmits, ref } from 'vue';
+
+import { useFileUploader } from '@/composables/useFileUploader';
 
 const fileName = ref('');
 

@@ -49,6 +49,24 @@ export default tseslint.config({
         'import/extensions': 'off',
         'import/no-absolute-path': 'off',
         'import/no-extraneous-dependencies': 'off',
+        'import/order': [
+            'warn',
+            {
+                groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+                pathGroups: [
+                    {
+                        pattern: '@/**',
+                        group: 'internal',
+                    },
+                ],
+                pathGroupsExcludedImportTypes: ['builtin'],
+                alphabetize: {
+                    order: 'asc',
+                    caseInsensitive: true,
+                },
+                'newlines-between': 'always',
+            }
+        ],
 
         'vue/no-multiple-template-root': 'off',
         'vue/multi-word-component-names': 'off',

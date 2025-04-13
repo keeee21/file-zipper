@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import UploadForm from '@/components/UploadForm.vue';
 import { useUserStore } from '@/store/user';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
