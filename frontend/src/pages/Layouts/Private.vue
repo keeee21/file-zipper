@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import HeaderNav from '@/components/layout/HeaderNav.vue';
+import SideBar from '@/components/layout/SideBar.vue';
 </script>
+
 <template>
-  <HeaderNav />
-  <RouterView />
+  <div class="flex h-screen">
+    <div class="h-full">
+      <SideBar />
+    </div>
+
+    <main class="flex-1 h-full overflow-auto">
+      <RouterView />
+    </main>
+  </div>
 </template>

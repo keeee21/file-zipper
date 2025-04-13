@@ -2,6 +2,10 @@
 import { onBeforeMount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
+
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import AppSidebar from '../AppSidebar.vue';
+
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -16,5 +20,11 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <h1>header nav</h1>
+  <SidebarProvider>
+    <AppSidebar />
+    <main>
+      <SidebarTrigger />
+      <slot />
+    </main>
+  </SidebarProvider>
 </template>
