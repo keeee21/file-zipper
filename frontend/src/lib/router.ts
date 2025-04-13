@@ -9,6 +9,8 @@ import InternalServerError from '@/pages/InternalServerError.vue';
 import Login from '@/pages/Login.vue';
 import Index from '@/pages/Index.vue';
 import Download from '@/pages/[id]/index.vue';
+import WhatIs from '@/pages/what-is/index.vue';
+import HowToUse from '@/pages/how-to-use/index.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -111,6 +113,18 @@ const routes: Array<RouteRecordRaw> = [
         path: '/:id',
         name: 'download',
         meta: { isPublic: true, title: 'ダウンロード' },
+      },
+      {
+        component: WhatIs,
+        path: '/what-is',
+        name: 'whatIs',
+        meta: { isPublic: true, title: 'File Zipper とは' },
+      },
+      {
+        component: HowToUse,
+        path: '/how-to-use',
+        name: 'howToUse',
+        meta: { isPublic: true, title: 'File Zipper の使い方' },
       },
     ],
   },
