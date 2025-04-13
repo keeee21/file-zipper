@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
+import { Checkbox } from '@/components/ui/checkbox';
 
-const props = defineProps<{
-  isPasswordEnabled: boolean;
-  password: string;
-}>();
+const password = defineModel<string>('password');
+const isEnabled = ref(false);
 
-const emit = defineEmits(['update:isPasswordEnabled', 'update:password', 'toggle']);
+// ランダムパスワード生成
+function generateRandomPassword() {
+  return Math.random().toString(36).slice(-12);
+}
 
-const togglePassword = () => {
-  emit('update:isPasswordEnabled', !props.isPasswordEnabled);
-  emit('toggle', !props.isPasswordEnabled);
-};
-
-const updatePassword = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  emit('update:password', target.value);
+const handleToggle = (checked: boolean | 'indeterminate') => {
+  if (checked === true) {
+    password.value = generateRandomPassword();
+  } else {
+    password.value = '';
+  }
 };
 </script>
 
 <template>
   <div class="password-toggle">
-    <label>
-      <input type="checkbox" :checked="isPasswordEnabled" @change="togglePassword" />
-      パスワードを設定する
+    <Checkbox id="passowrd-check" v-model="isEnabled" @update:model-value="handleToggle" />
+    <label for="passowrd-check" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      パスワードを設定する（任意）
     </label>
   </div>
 
-  <div v-if="isPasswordEnabled" class="password-field">
-    <input type="text" :value="password" class="password-input" @input="updatePassword" />
+  <div v-if="isEnabled" class="password-field">
+    <input v-model="password" type="text" class="password-input" placeholder="パスワードを入力" />
   </div>
 </template>
 

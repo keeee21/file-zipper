@@ -5,23 +5,8 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { useFileUploader } from '@/composables/useFileUploader';
 
 const { uploadFile, errorMessage, fileData } = useFileUploader();
-const isPasswordEnabled = ref<boolean>(false);
 const password = ref<string>('');
 const downloadLink = ref<string>('');
-
-// パスワードトグルの処理
-const handlePasswordToggle = (enabled: boolean) => {
-  if (enabled) {
-    password.value = generateRandomPassword();
-  } else {
-    password.value = '';
-  }
-};
-
-// ランダムパスワード生成
-function generateRandomPassword() {
-  return Math.random().toString(36).slice(-12);
-}
 
 // アップロード処理
 const handleUpload = async () => {
@@ -39,14 +24,10 @@ const handleUpload = async () => {
 
 <template>
   <div class="upload-container">
-    <h1 class="title">File Zipper</h1>
-
     <FileUpload @update:file-data="fileData = $event" />
-
-    <PasswordInput v-model:is-password-enabled="isPasswordEnabled" v-model:password="password" @toggle="handlePasswordToggle" />
+    <PasswordInput v-model:password="password" />
 
     <span v-if="errorMessage">{{ errorMessage }}</span>
-
     <span v-if="downloadLink"
       >Download Link: <a :href="downloadLink" target="_blank">{{ downloadLink }}</a></span
     >
