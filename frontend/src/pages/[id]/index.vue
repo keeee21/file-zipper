@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { downloadFile } from '@/composables/fileDownload';
 import { useGetRoomValidity } from '@/composables/useIsValidUrl';
 import { useGetFileNames } from '@/composables/useGetFileNames';
 import { useGetSignedUrl } from '@/composables/useGetSignedUrl';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 
 const route = useRoute();
+const router = useRouter();
+
 const roomId = route.params.id as string;
 
 const fileNames = ref<string[]>([]);
@@ -14,16 +18,13 @@ const password = ref<string>('');
 const isValidUrl = ref<boolean>(false);
 
 onMounted(async () => {
-  // このroomが存在していて、かつ有効期限が切れていないかを確認する
   const isValidRoomRes = await useGetRoomValidity(roomId);
   isValidUrl.value = isValidRoomRes.isValid;
   if (!isValidUrl.value) {
     alert('このURLは無効です。');
-    // window.location.href = '/'
-    // Note: いきなりリダイレクトは親切ではないので、レンダリング後にナビゲーションする
+    router.push('/');
   }
 
-  // ファイル名等を取得する
   const useGetFileRes = await useGetFileNames(roomId);
   if (useGetFileRes.data.fileNames) {
     fileNames.value = useGetFileRes.data.fileNames;
@@ -33,7 +34,6 @@ onMounted(async () => {
   }
 });
 
-// ダウンロード
 const handleDownload = async () => {
   const res = await useGetSignedUrl(roomId, password.value);
   const signedUrls = res.data;
@@ -50,72 +50,32 @@ const handleDownload = async () => {
 </script>
 
 <template>
-  <div class="download-container">
-    <h2 class="title">ファイルダウンロード</h2>
-    <p class="filename">
-      ファイル名: <strong>{{ fileNames }}</strong>
-    </p>
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <Card class="w-full max-w-2xl text-center">
+      <CardHeader>
+        <CardTitle>ファイルダウンロード</CardTitle>
+      </CardHeader>
 
-    <div class="password-row">
-      <label for="password-input" class="password-label">パスワード:</label>
-      <input id="password-input" v-model="password" type="password" placeholder="パスワードを入力" class="password-input" />
-    </div>
+      <CardContent class="space-y-6">
+        <p class="text-sm text-gray-700 break-all">
+          ファイル名: <strong>{{ fileNames.join(', ') }}</strong>
+        </p>
 
-    <button class="download-button" @click="handleDownload">ダウンロード</button>
+        <div class="flex items-center gap-3 text-left">
+          <label for="password-input" class="min-w-[80px] text-sm text-gray-700">パスワード:</label>
+          <input
+            id="password-input"
+            v-model="password"
+            type="password"
+            placeholder="パスワードを入力"
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </CardContent>
+
+      <CardFooter>
+        <Button class="w-full justify-center" @click="handleDownload">ダウンロード</Button>
+      </CardFooter>
+    </Card>
   </div>
 </template>
-
-<style scoped>
-.download-container {
-  width: 500px;
-  margin: 40px auto;
-  padding: 24px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 16px;
-}
-
-.filename {
-  margin-bottom: 16px;
-}
-
-.password-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.password-label {
-  min-width: 80px;
-  margin-right: 8px;
-}
-
-.password-input {
-  flex: 1;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.download-button {
-  padding: 10px 16px;
-  background-color: #007bff;
-  color: white;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.download-button:hover {
-  background-color: #0056b3;
-}
-</style>

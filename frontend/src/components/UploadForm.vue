@@ -25,7 +25,7 @@ const handleUpload = async () => {
 </script>
 
 <template>
-  <div class="max-w-xl w-[90%] mx-auto mt-12 p-10 bg-white shadow-md rounded-xl text-center space-y-6">
+  <div class="max-w-xl w-[90%] mx-auto mt-12 p-10 bg-white rounded-xl text-center space-y-6">
     <FileUpload @update:file-data="fileData = $event" />
     <PasswordInput v-model:password="password" />
 
