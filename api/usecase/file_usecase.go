@@ -23,6 +23,7 @@ type IFileUsecase interface {
 	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
 	CreateRoomFile(roomID string, fileID uint) error
 	GetSignedUrl(fileId string) (string, error)
+	VerifyRoomPassword(roomID, password string) (bool, error)
 }
 
 type fileUsecase struct {
@@ -178,4 +179,25 @@ func (fu *fileUsecase) CreateRoomFile(roomID string, fileID uint) error {
 		return fmt.Errorf("failed to create room_file: %w", err)
 	}
 	return nil
+}
+
+func (fu *fileUsecase) VerifyRoomPassword(roomID, password string) (bool, error) {
+	room, err := fu.roomRepo.GetRoomByID(roomID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get room: %w", err)
+	}
+	if room == nil {
+		return false, fmt.Errorf("room not found")
+	}
+
+	if room.Password == nil {
+		return true, nil
+	}
+
+	isValid := util.ComparePassword(*room.Password, password)
+	if !isValid {
+		return false, fmt.Errorf("invalid password")
+	}
+
+	return true, nil
 }

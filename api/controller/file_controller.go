@@ -100,6 +100,10 @@ func (fc *FileController) GetFileNamesByRoomId(c echo.Context) error {
 	})
 }
 
+type SignedUrlRequest struct {
+	Password string `json:"password"`
+}
+
 func (fc *FileController) GetSignedUrl(c echo.Context) error {
 	roomId := c.Param("roomID")
 	signedUrls := make([]string, 0)
@@ -118,10 +122,29 @@ func (fc *FileController) GetSignedUrl(c echo.Context) error {
 		})
 	}
 
+	var req SignedUrlRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "リクエストが不正です",
+		})
+	}
+
+	ok, err := fc.fileUsecase.VerifyRoomPassword(roomId, req.Password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "パスワード検証に失敗しました",
+		})
+	}
+
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "パスワードが間違っています",
+		})
+	}
+
 	for _, file := range files {
 		url, err := fc.fileUsecase.GetSignedUrl(file.Name)
 		if err != nil {
-			fmt.Printf("❌ サイン付きURLの取得に失敗 (fileID=%d): %v\n", file.ID, err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": "サイン付きURLの取得に失敗しました",
 			})
