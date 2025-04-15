@@ -9,3 +9,6 @@ front:
 
 backend:
 	docker exec -it file-zipper_api sh
+
+stop:
+	cd docker && docker compose stop
