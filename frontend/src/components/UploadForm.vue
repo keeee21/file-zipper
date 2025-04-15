@@ -3,6 +3,7 @@ import { Send } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 
+import ExpirationSelect from '@/components/ExpirationSelect.vue';
 import FileUpload from '@/components/FileUpload.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useFileUploader } from '@/composables/useFileUploader';
 const { uploadFile, errorMessage, fileData } = useFileUploader();
 const password = ref<string>('');
 const downloadLink = ref<string>('');
+const selected = ref(1);
 
 // アップロード処理
 const handleUpload = async () => {
@@ -19,7 +21,7 @@ const handleUpload = async () => {
     return;
   }
 
-  const res = await uploadFile(password.value);
+  const res = await uploadFile(password.value, selected.value);
   if (res) {
     downloadLink.value = res.url;
   }
@@ -38,7 +40,8 @@ const copyToClipboard = async () => {
 </script>
 
 <template>
-  <div class="max-w-xl w-[90%] mx-auto mt-12 p-10 bg-white rounded-xl text-center space-y-6">
+  <div class="max-w-xl w-[90%] mx-auto p-2 bg-white rounded-xl text-center space-y-6">
+    <ExpirationSelect v-model:expiration="selected" />
     <FileUpload @update:file-data="fileData = $event" />
     <PasswordInput v-model:password="password" />
 

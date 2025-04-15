@@ -20,7 +20,7 @@ type IFileUsecase interface {
 	GetFileNamesByRoomId(roomID string) ([]string, error)
 	GetFileByRoomId(roomID string) ([]model.File, error)
 	Upload(file *model.File, fileData []byte, fileExt string) (model.FileResponse, error)
-	CreateDownloadRoom(file *model.File, password string) (*model.DownloadRoom, error)
+	CreateDownloadRoom(file *model.File, password string, expirationDays int) (*model.DownloadRoom, error)
 	CreateRoomFile(roomID string, fileID uint) error
 	GetSignedUrl(fileId string) (string, error)
 	VerifyRoomPassword(roomID, password string) (bool, error)
@@ -119,20 +119,20 @@ func (fu *fileUsecase) Upload(file *model.File, fileData []byte, fileExt string)
 	return model.FileResponse{ID: file.ID, Name: file.Name}, nil
 }
 
-func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string) (*model.DownloadRoom, error) {
+func (fu *fileUsecase) CreateDownloadRoom(file *model.File, pass string, expirationDays int) (*model.DownloadRoom, error) {
 	roomID := util.GenerateULID()
 
 	var hashedPassword *string
 	if pass != "" {
 		hashed, err := util.HashPassword(pass)
 		if err != nil {
-			fmt.Println("❌ パスワードのハッシュ化に失敗:", err)
 		} else {
 			hashedPassword = &hashed
 		}
 	}
 
-	expiredAt := time.Now().Add(1 * time.Hour)
+	// ルームの有効期限を設定
+	expiredAt := time.Now().Add(time.Duration(expirationDays) * 24 * time.Hour)
 
 	room := &model.DownloadRoom{
 		ID:        roomID,

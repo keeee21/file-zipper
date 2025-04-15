@@ -59,7 +59,7 @@ export function useFileUploader() {
   /**
    * ファイルをアップロード
    */
-  const uploadFile = async (password: string | null) => {
+  const uploadFile = async (password: string | null, expiration: number | null) => {
     const accessToken = AuthService.getAccessToken();
 
     if (!fileData.value) {
@@ -77,6 +77,10 @@ export function useFileUploader() {
       formData.append('fileName', actualFileName);
       if (password) {
         formData.append('password', password);
+      }
+
+      if (expiration !== null) {
+        formData.append('expiration', expiration.toString());
       }
 
       const response = await fetch('api/file-upload', {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -25,6 +26,12 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 			c.JSON(http.StatusInternalServerError, map[string]string{"error": "予期しないエラーが発生しました"})
 		}
 	}()
+
+	expirationStr := c.FormValue("expiration")
+	expirationDays, err := strconv.Atoi(expirationStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "有効期限の取得に失敗しました"})
+	}
 
 	// フォームデータ取得
 	fileHeader, err := c.FormFile("file")
@@ -62,7 +69,7 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイルのアップロードに失敗しました"})
 	}
 
-	downloadRoomRes, err := fc.fileUsecase.CreateDownloadRoom(&fileModel, password)
+	downloadRoomRes, err := fc.fileUsecase.CreateDownloadRoom(&fileModel, password, expirationDays)
 	if err != nil {
 		fmt.Println("❌ ダウンロードルームの作成に失敗:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ダウンロードルームの作成に失敗しました"})
