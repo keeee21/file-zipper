@@ -3,6 +3,7 @@ package controller
 import (
 	"file-zipper-api/model"
 	"file-zipper-api/usecase"
+	"file-zipper-api/util"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,11 +13,15 @@ import (
 )
 
 type FileController struct {
-	fileUsecase usecase.IFileUsecase
+	fileUsecase    usecase.IFileUsecase
+	fileLogUsecase *usecase.FileLogUsecase
 }
 
-func NewFileController(fileUsecase usecase.IFileUsecase) *FileController {
-	return &FileController{fileUsecase}
+func NewFileController(fileUsecase usecase.IFileUsecase, fileLogUsecase *usecase.FileLogUsecase) *FileController {
+	return &FileController{
+		fileUsecase:    fileUsecase,
+		fileLogUsecase: fileLogUsecase,
+	}
 }
 
 func (fc *FileController) UploadFile(c echo.Context) error {
@@ -26,6 +31,12 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 			c.JSON(http.StatusInternalServerError, map[string]string{"error": "予期しないエラーが発生しました"})
 		}
 	}()
+
+	// ユーザーIDを取得
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "認証が必要です"})
+	}
 
 	expirationStr := c.FormValue("expiration")
 	expirationDays, err := strconv.Atoi(expirationStr)
@@ -69,12 +80,18 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ファイルのアップロードに失敗しました"})
 	}
 
+	// アップロードログを記録
+	err = fc.fileLogUsecase.LogFileUpload(uploadRes.ID, userID)
+	if err != nil {
+		fmt.Println("❌ アップロードログの記録に失敗:", err)
+		// ログの記録失敗は致命的ではないので、エラーを返さない
+	}
+
 	downloadRoomRes, err := fc.fileUsecase.CreateDownloadRoom(&fileModel, password, expirationDays)
 	if err != nil {
 		fmt.Println("❌ ダウンロードルームの作成に失敗:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "ダウンロードルームの作成に失敗しました"})
 	}
-	fmt.Println("✅ ダウンロードルームを作成しました:", downloadRoomRes)
 
 	// ダウンロードルームIDと、fileIDを使って、room_filesテーブルにレコードを作成
 	err = fc.fileUsecase.CreateRoomFile(downloadRoomRes.ID, uploadRes.ID)
@@ -82,7 +99,6 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 		fmt.Println("❌ room_filesテーブルの作成に失敗:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "room_filesテーブルの作成に失敗しました"})
 	}
-	fmt.Println("✅ room_filesテーブルを作成しました")
 
 	res := map[string]interface{}{
 		"name": uploadRes.Name,
@@ -95,7 +111,6 @@ func (fc *FileController) UploadFile(c echo.Context) error {
 func (fc *FileController) GetFileNamesByRoomId(c echo.Context) error {
 	roomId := c.Param("roomID")
 
-	// ✅ ユースケースを呼び出し（エラーハンドリング追加）
 	fileNames, err := fc.fileUsecase.GetFileNamesByRoomId(roomId)
 	if err != nil {
 		fmt.Println("❌ ファイル名の取得に失敗:", err)
@@ -112,6 +127,12 @@ type SignedUrlRequest struct {
 }
 
 func (fc *FileController) GetSignedUrl(c echo.Context) error {
+	// ユーザーIDを取得
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "認証が必要です"})
+	}
+
 	roomId := c.Param("roomID")
 	signedUrls := make([]string, 0)
 
@@ -123,7 +144,6 @@ func (fc *FileController) GetSignedUrl(c echo.Context) error {
 		})
 	}
 	if len(files) == 0 {
-		fmt.Println("❌ roomIdに関連付けられたファイルがありません")
 		return c.JSON(http.StatusNotFound, map[string]string{
 			"error": "roomIdに関連付けられたファイルがありません",
 		})
@@ -157,6 +177,13 @@ func (fc *FileController) GetSignedUrl(c echo.Context) error {
 			})
 		}
 		signedUrls = append(signedUrls, url)
+
+		// ダウンロードログを記録
+		err = fc.fileLogUsecase.LogFileDownload(file.ID, userID)
+		if err != nil {
+			fmt.Println("❌ ダウンロードログの記録に失敗:", err)
+			// ログの記録失敗は致命的ではないので、エラーを返さない
+		}
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

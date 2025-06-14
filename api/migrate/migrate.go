@@ -10,5 +10,5 @@ func main() {
 	dbConn := db.InitDB()
 	defer fmt.Println("Successfully migrated")
 	defer db.CloseDB(dbConn)
-	dbConn.AutoMigrate(&model.File{}, &model.DownloadRoom{}, &model.RoomFile{}, &model.User{})
+	dbConn.AutoMigrate(&model.File{}, &model.DownloadRoom{}, &model.RoomFile{}, &model.User{}, &model.UploadLog{}, &model.DownloadLog{})
 }

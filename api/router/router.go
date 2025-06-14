@@ -22,7 +22,11 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	roomRepo := repository.NewDownloadRoomRepository(db)
 	roomFileRepo := repository.NewRoomFilesRepository(db)
 	fileUsecase := usecase.NewFileUsecase(fileRepo, roomRepo, roomFileRepo)
-	fileController := controller.NewFileController(fileUsecase)
+
+	// ファイルログ関連
+	fileLogRepo := repository.NewFileLogRepository(db)
+	fileLogUsecase := usecase.NewFileLogUsecase(fileLogRepo)
+	fileController := controller.NewFileController(fileUsecase, fileLogUsecase)
 
 	roomUsecase := usecase.NewDownloadRoomUsecase(roomRepo)
 	downloadRoomController := controller.NewDownloadRoomController(roomUsecase)
